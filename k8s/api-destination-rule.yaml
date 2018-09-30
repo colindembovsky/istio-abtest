@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: cols-api
+spec:
+  host: cols-api
+  subsets:
+  - name: v-1-0-0
+    labels:
+      version: '1.0.0'
+  - name: v-1-0-1
+    labels:
+      version: '1.0.1'
