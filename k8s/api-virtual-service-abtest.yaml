@@ -9,9 +9,9 @@ spec:
   - route:
     - destination:
         host: cols-api
-        subset: v-1-0-0
+        subset: 1-0-0
       weight: 80
     - destination:
         host: cols-api
-        subset: v-1-0-1
+        subset: 1-0-1
       weight: 20

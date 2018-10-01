@@ -5,9 +5,9 @@ metadata:
 spec:
   host: cols-api
   subsets:
-  - name: v-1-0-0
+  - name: 1-0-0
     labels:
       version: '1.0.0'
-  - name: v-1-0-1
+  - name: 1-0-1
     labels:
       version: '1.0.1'
