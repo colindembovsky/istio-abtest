@@ -10,4 +10,3 @@ spec:
     name: http
   selector:
     app: cols-api
-  type: NodePort

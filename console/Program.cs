@@ -29,7 +29,7 @@ namespace console
 			}
 			catch(Exception e)
 			{
-				Console.WriteLine(e.ToString());
+				//Console.WriteLine(e.ToString());
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace console
 
 			var total = newBag.Count + oldBag.Count;
 			var percNew = ((double)newBag.Count / total) * 100;
-			Console.WriteLine($"Percentage onto new version: {percNew}%");
+			Console.WriteLine($"Percentage onto new version (out of total {total}): {percNew}%");
 			Console.WriteLine($"Time: {timer.ElapsedMilliseconds} ms");
 			Console.ReadLine();
 		}
