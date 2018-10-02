@@ -1,19 +1,4 @@
 apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: cols-api-gateway
-spec:
-  selector:
-    istio: ingressgateway # use istio default controller
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
-    hosts:
-    - "*"
----
-apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: cols-api
@@ -22,10 +7,10 @@ spec:
   subsets:
   - name: blue
     labels:
-      version: '1.0.0'
+      version: '__BlueVersion__'
   - name: green
     labels:
-      version: '1.0.1'
+      version: '__GreenVersion__'
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -44,8 +29,8 @@ spec:
     - destination:
         host: cols-api
         subset: blue
-      weight: 100
+      weight: __BlueWeight__
     - destination:
         host: cols-api
         subset: green
-      weight: 0
+      weight: __GreenWeight__
