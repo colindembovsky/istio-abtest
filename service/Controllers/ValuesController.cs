@@ -14,7 +14,7 @@ namespace istio_abtest.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "NEWVERSION!!" };
+            return new string[] { "old version" };
         }
 
         // GET api/values/5
