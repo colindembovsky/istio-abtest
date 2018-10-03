@@ -1,0 +1,50 @@
+{{- range $i, $slot := .Values.canary }} # for loop over canary deployments
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: "{{ template "cols-api.name" $ }}-{{ $slot.name }}"
+  labels:
+    app: {{ template "cols-api.name" $ }}
+    tag: {{ $slot.tag }}
+    chart: {{ template "cols-api.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cols-api.name" $ }}
+        tag: {{ $slot.tag }}
+    spec:
+      containers:
+        - name: {{ $.Chart.Name }}
+          image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+{{ toYaml $.Values.resources | indent 12 }}
+    {{- with $.Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with $.Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with $.Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}

@@ -4,14 +4,14 @@ metadata:
   name: cols-api-1.0.1
   labels:
     app: cols-api
-    version: '1.0.1'
+    tag: '1.0.1'
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         app: cols-api
-        version: '1.0.1'
+        tag: '1.0.1'
     spec:
       containers:
       - name: cols-api

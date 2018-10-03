@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ template "cols-api.name" . }}-gateway
+  chart: {{ template "cols-api.chart" . }}
+  release: {{ .Release.Name }}
+  heritage: {{ .Release.Service }}
+spec:
+  selector:
+    istio: {{ .Values.gateway.selector }}
+  servers:
+  - port:
+      number: {{ .Values.gateway.port }}
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"

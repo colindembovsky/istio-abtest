@@ -1,0 +1,5 @@
+Follow the instructions from this URL:
+
+https://istio.io/docs/tasks/traffic-management/ingress/#determining-the-ingress-ip-and-ports
+
+If you are using docker-for-windows, then you can just use http://localhost:31380/api/values to hit the gateway.
