@@ -2,7 +2,7 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: "{{ template "cols-api.name" $ }}-{{ $slot.name }}"
+  name: {{ template "cols-api.name" $ }}-{{ $slot.name }}
   labels:
     app: {{ template "cols-api.name" $ }}
     tag: {{ $slot.tag }}
