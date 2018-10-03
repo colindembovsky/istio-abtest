@@ -4,6 +4,7 @@ metadata:
   name: {{ template "cols-api.name" . }}-gateway
   chart: {{ template "cols-api.chart" . }}
   release: {{ .Release.Name }}
+  releaseNumber: {{ $.Values.releaseNumber }}
   heritage: {{ .Release.Service }}
 spec:
   selector:

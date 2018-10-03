@@ -4,9 +4,10 @@ metadata:
   name: {{ template "cols-api.name" . }}
   chart: {{ template "cols-api.chart" . }}
   release: {{ .Release.Name }}
+  releaseNumber: {{ $.Values.releaseNumber }}
   heritage: {{ .Release.Service }}
 spec:
-  host: name: {{ template "cols-api.name" . }}
+  host: {{ template "cols-api.name" . }}
   subsets:
   {{- range $i, $slot := .Values.canary }}
   - name: {{ $slot.name }}
@@ -20,12 +21,13 @@ metadata:
   name: {{ template "cols-api.name" . }}
   chart: {{ template "cols-api.chart" . }}
   release: {{ .Release.Name }}
+  releaseNumber: {{ $.Values.releaseNumber }}
   heritage: {{ .Release.Service }}
 spec:
   hosts:
   - "*"
   gateways:
-  - {{ template "cols-api.name" . }}-gateway
+  - {{ template "cols-api.fullname" . }}-gateway
   http:
   - match:
     - uri:
@@ -33,7 +35,7 @@ spec:
     route:
     {{- range $i, $slot := .Values.canary }}
     - destination:
-        host: {{ template "cols-api.name" $ }}
+        host: {{ template "cols-api.fullname" $ }}
         subset: {{ $slot.name }}
       weight: {{ $slot.weight }}
     {{- end}}

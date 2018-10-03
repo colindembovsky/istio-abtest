@@ -2,15 +2,20 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "cols-api.name" $ }}-{{ $slot.name }}
+  name: {{ template "cols-api.name" $ }}-{{ $.Values.releaseNumber }}-{{ $slot.name }}
   labels:
     app: {{ template "cols-api.name" $ }}
     tag: {{ $slot.tag }}
     chart: {{ template "cols-api.chart" $ }}
     release: {{ $.Release.Name }}
+    releaseNumber: {{ $.Values.releaseNumber }}
     heritage: {{ $.Release.Service }}
 spec:
   replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "cols-api.name" $ }}
+      tag: {{ $slot.tag }} 
   template:
     metadata:
       labels:
@@ -18,23 +23,25 @@ spec:
         tag: {{ $slot.tag }}
     spec:
       containers:
-        - name: {{ $.Chart.Name }}
-          image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-{{ toYaml $.Values.resources | indent 12 }}
+      - name: {{ $.Chart.Name }}
+        image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        environment:
+          ASPNETCORE_ENVIRONMENT: {{ $.Values.image.ASPNETEnvironment }}
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /api/values
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /api/values
+            port: http
+        resources:
+{{ toYaml $.Values.resources | indent 10 }}
     {{- with $.Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -47,4 +54,5 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+---
 {{- end }}
