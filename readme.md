@@ -241,3 +241,12 @@ Average call response time: 2.49544072948328 ms
 We can see that we're getting even distribution for both deployments (this is exactly what k8s should be doing - the service selector labels that match both deploymets). We see that calls take around 2.5ms.
 
 Conclusion? There is about 2ms of performance hit per call to the services in the mesh. This is by no means a comprehensive test, but we can expect some performance impact from istio.
+
+## Cleanup
+Just delete the helm deployment:
+
+```sh
+helm del cols-api --purge
+```
+
+You can also delete the `col` namespace. To get rid of istio, just run `helm del istio --purge`.
