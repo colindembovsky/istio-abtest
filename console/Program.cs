@@ -4,27 +4,27 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Diagnostics;
+using System.Linq;
 
 namespace console
 {
     class Program
     {
-		static ConcurrentBag<int> oldBag = new ConcurrentBag<int>();
-		static ConcurrentBag<int> newBag = new ConcurrentBag<int>();
+		static ConcurrentDictionary<string, int> versionDict = new ConcurrentDictionary<string, int>();
 
 		static async Task CallAPI(HttpClient client, string url)
 		{
 			try
 			{
 				var res = await client.GetAsync(url);
-				var c = await res.Content.ReadAsStringAsync();
-				if (c.Contains("NEW"))
+				var version = await res.Content.ReadAsStringAsync();
+				if (versionDict.ContainsKey(version))
 				{
-					newBag.Add(1);
+					versionDict[version] = versionDict[version] + 1;
 				}
 				else
 				{
-					oldBag.Add(1);
+					versionDict[version] = 1;
 				}
 			}
 			catch(Exception e)
@@ -45,20 +45,56 @@ namespace console
             Task.WaitAll(taskList.ToArray());
         }
 
-        static void Main(string[] args)
-        {
-			Console.WriteLine("Starting test");
-			var timer = new Stopwatch();
-			timer.Start();
+		static void ContinualTest(string url)
+		{
+			var client = new HttpClient();
+			Console.WriteLine("Press ESC to stop");
+			do 
+			{
+				while (! Console.KeyAvailable)
+				{
+					Task.Run(async () => {
+						try 
+						{
+							var res = await client.GetAsync(url);
+							var version = await res.Content.ReadAsStringAsync();
+							Console.WriteLine(version);
+						}
+						catch (Exception ex)
+						{
+							Console.WriteLine(ex.Message);
+						}
+					}).GetAwaiter().GetResult();
+				}       
+			} 
+			while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+		}
 
-			LoadTest(args[0], 1000);
-			timer.Stop();
+		static void Main(string[] args)
+		{
+			if (args[0].ToLower() == "load")
+			{
+				Console.WriteLine("Starting load test");
+				var timer = new Stopwatch();
+				timer.Start();
 
-			var total = newBag.Count + oldBag.Count;
-			var percNew = ((double)newBag.Count / total) * 100;
-			Console.WriteLine($"Percentage onto new version (out of total {total}): {percNew}%");
-			Console.WriteLine($"Time: {timer.ElapsedMilliseconds} ms");
-			Console.ReadLine();
+				LoadTest(args[1], 1000);
+				timer.Stop();
+				Console.WriteLine($"Time: {timer.ElapsedMilliseconds} ms");
+
+				var total = versionDict.Sum((x) => x.Value);
+				Console.WriteLine($"Total calls: {total}");
+				foreach(var v in versionDict.Keys)
+				{
+					Console.WriteLine($"  -- version [{v}], percentage [{((double)versionDict[v] / total) * 100}]");
+				}
+
+				Console.WriteLine($"Average call response time: {(double)timer.ElapsedMilliseconds / total} ms");
+			}
+			else
+			{
+				ContinualTest(args[1]);
+			}
 		}
 	}
 }

@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "cols-api.name" . }}
+  name: {{ template "cols-api.fullname" . }}
   labels:
     app: {{ template "cols-api.name" . }}
     chart: {{ template "cols-api.chart" . }}
     release: {{ .Release.Name }}
+    releaseNumber: {{ $.Values.releaseNumber }}
     heritage: {{ .Release.Service }}
 spec:
   type: {{ .Values.service.type }}
@@ -16,3 +17,4 @@ spec:
       name: http
   selector:
     app: {{ template "cols-api.name" . }}
+    release: {{ .Release.Name }}

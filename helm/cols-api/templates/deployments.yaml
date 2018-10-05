@@ -2,39 +2,50 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "cols-api.name" $ }}-{{ $slot.name }}
+  name: {{ template "cols-api.fullname" $ }}-{{ $slot.name }}
   labels:
-    app: {{ template "cols-api.name" $ }}
+    app: {{ template "cols-api.fullname" $ }}
     tag: {{ $slot.tag }}
     chart: {{ template "cols-api.chart" $ }}
     release: {{ $.Release.Name }}
+    releaseNumber: {{ $.Values.releaseNumber }}
     heritage: {{ $.Release.Service }}
 spec:
   replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "cols-api.name" $ }}
+      release: {{ $.Release.Name }}
   template:
     metadata:
       labels:
         app: {{ template "cols-api.name" $ }}
+        release: {{ $.Release.Name }}
         tag: {{ $slot.tag }}
     spec:
       containers:
-        - name: {{ $.Chart.Name }}
-          image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-{{ toYaml $.Values.resources | indent 12 }}
+      - name: {{ $.Chart.Name }}
+        image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: {{ $.Values.image.ASPNETEnvironment }}
+        - name: IMAGE_TAG
+          value: {{ $slot.tag }}
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /api/version
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /api/version
+            port: http
+        resources:
+{{ toYaml $.Values.resources | indent 10 }}
     {{- with $.Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -47,4 +58,5 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+---
 {{- end }}

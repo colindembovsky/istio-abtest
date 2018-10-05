@@ -2,11 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+releaseNumber: 1.0.1
+
 replicaCount: 1
 
 image:
   repository: col/api
   pullPolicy: IfNotPresent
+  ASPNETEnvironment: debug
 
 canary:
   - name: blue
