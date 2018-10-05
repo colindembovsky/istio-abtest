@@ -2,9 +2,9 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "cols-api.name" $ }}-{{ $.Values.releaseNumber }}-{{ $slot.name }}
+  name: {{ template "cols-api.fullname" $ }}-{{ $slot.name }}
   labels:
-    app: {{ template "cols-api.name" $ }}
+    app: {{ template "cols-api.fullname" $ }}
     tag: {{ $slot.tag }}
     chart: {{ template "cols-api.chart" $ }}
     release: {{ $.Release.Name }}
@@ -15,30 +15,34 @@ spec:
   selector:
     matchLabels:
       app: {{ template "cols-api.name" $ }}
-      tag: {{ $slot.tag }} 
+      release: {{ $.Release.Name }}
   template:
     metadata:
       labels:
         app: {{ template "cols-api.name" $ }}
+        release: {{ $.Release.Name }}
         tag: {{ $slot.tag }}
     spec:
       containers:
       - name: {{ $.Chart.Name }}
         image: "{{ $.Values.image.repository }}:{{ $slot.tag }}"
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
-        environment:
-          ASPNETCORE_ENVIRONMENT: {{ $.Values.image.ASPNETEnvironment }}
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: {{ $.Values.image.ASPNETEnvironment }}
+        - name: IMAGE_TAG
+          value: {{ $slot.tag }}
         ports:
         - name: http
           containerPort: 80
           protocol: TCP
         livenessProbe:
           httpGet:
-            path: /api/values
+            path: /api/version
             port: http
         readinessProbe:
           httpGet:
-            path: /api/values
+            path: /api/version
             port: http
         resources:
 {{ toYaml $.Values.resources | indent 10 }}
